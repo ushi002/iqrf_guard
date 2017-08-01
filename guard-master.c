@@ -42,14 +42,20 @@
 // *********************************************************************
 
 #define SPIDEBUG
+void take_picture(void);
 
 void APPLICATION()             	// Obligatory assigning - see E00-START
-{    
+{
+	uns8 picture_taken = 0;
 	clearBufferRF();
 	
 	#ifdef SPIDEBUG
-	enableSPI();
-	#endif
+	enableSPI();	
+	#else //not SPIDEBUG
+	disableSPI();
+	TRISC.3 = 0;	//port direction of portc.3 (sam as _SCK) for camera trigger
+	_SCK = 0;
+	#endif //SPIDEBUG
 
     while (1)                  	// Main cycle (perpetually repeated)
     {
@@ -83,23 +89,54 @@ void APPLICATION()             	// Obligatory assigning - see E00-START
 			
 			//alarm recevied
 			if (bufferRF[0] == 'A')
-			{				
-				PIN = 0;
-				bufferRF[3] = bufferRF[1]; //copy NUM OF UNIT
-				bufferRF[0] = 'A';
-				bufferRF[1] = 'C';
-				bufferRF[2] = 'K';
-				//bufferRF[3] = --already filled
-				bufferRF[4] = 'A'; //slave will ring alarm
-				
-				DLEN = 5;         	//      Setup RF packet length
-				RFTXpacket();      	//      Transmit the message
-				waitDelay(25);     	//      and wait 250ms (25*10ms)
-				pulseLEDR();
+			{
+				if (picture_taken) //take picture, then send ACK to slave
+				{
+					PIN = 0;
+					bufferRF[3] = bufferRF[1]; //copy NUM OF UNIT
+					bufferRF[0] = 'A';
+					bufferRF[1] = 'C';
+					bufferRF[2] = 'K';
+					//bufferRF[3] = --already filled
+					bufferRF[4] = 'A'; //slave will ring alarm
+					
+					DLEN = 5;         	//      Setup RF packet length
+					RFTXpacket();      	//      Transmit the message
+					waitDelay(25);     	//      and wait 250ms (25*10ms)
+					pulseLEDR();
+					picture_taken = 0;
+				}else
+				{					
+					take_picture();					
+					picture_taken = 1;
+				}
 			}
         }		
     }                          	// End of main cycle
 }
+
+void take_picture(void)
+{
+	uns8 i,j;
+	
+	#ifndef SPIDEBUG
+	_SCK = 1;           // turn on camera and take picture
+	#endif
+	
+	for(i=0; i<2; i++) //wait 5 seconds??? need to be tested
+	{
+		waitDelay(25);     	//      and wait 250ms (25*10ms)
+		clrwdt();              	// Clear watchdog
+	}
+	
+	#ifndef SPIDEBUG
+	_SCK = 0;           // turn off camera
+	#endif	
+	pulsingLEDR();      // 4x LED flash (ALARM indication)
+	waitDelay(95);
+	stopLEDR();
+}
+
 // *********************************************************************
 
 #pragma packedCdataStrings 0    // Store the string unpacked
