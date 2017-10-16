@@ -87,7 +87,7 @@ void APPLICATION()             	// Obligatory assigning - see E00-START
 		{
 			motion_detected	= 0;
 			wupnum = 0; //do not send status packet
-			PIN = 0; //after every RFRXpacket before every RFTXpacket
+			PIN = 0; //peer-to-peer topology, update after every RFRXpacket before every RFTXpacket
 			bufferRF[0] = 'A';  //ALARM
 			bufferRF[1] = NUMOFUNIT;   //Number of unit causing alarm
 			bufferRF[2] = '_';
