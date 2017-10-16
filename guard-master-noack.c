@@ -108,7 +108,8 @@ void take_picture(void)
 	
 	CTRIG = 1;           // turn on camera and take picture/inform others
 	
-	waitDelay(25);     	//      and wait 250ms (25*10ms)
+	//waitDelay(25);     	//      and wait 250ms (25*10ms)
+	waitDelay(100);     	//      and wait 1s (ninkon coolpix 2500)
 	//clrwdt();              	// Clear watchdog
 
 	CTRIG = 0;           // turn off camera
