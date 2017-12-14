@@ -44,6 +44,7 @@
 #define NUMOFUNIT '0'
 
 //#define SPIDEBUG //it will generate alarms!
+//#define SENDSTATUS
 
 void APPLICATION()             	// Obligatory assigning - see E00-START
 {    
@@ -59,6 +60,9 @@ void APPLICATION()             	// Obligatory assigning - see E00-START
 	enableSPI();                // Enable SPI
 	#endif
 
+	setRFmode(_TX_XLP);         //TX XLP mode - prolonged TX preamble
+	toutRF = 3;
+		
     while (1)                  	// Main cycle (perpetually repeated)
     {
         clrwdt();              	// Clear watchdog
@@ -80,7 +84,9 @@ void APPLICATION()             	// Obligatory assigning - see E00-START
 		{
 			pulseLEDG();
 			waitDelay(25);
+#ifdef SENDSTATUS
 			wupnum++;
+#endif //SENDSTATUS
 		}
 		
 		if (motion_detected)
@@ -98,6 +104,7 @@ void APPLICATION()             	// Obligatory assigning - see E00-START
 			pulseLEDR();
 		}
 
+#ifdef SENDSTATUS
 		//15 wakeups per minute, 15*10 => 10min
 		//if (wupnum > 15*10)
 		if (wupnum > 3)
@@ -115,6 +122,7 @@ void APPLICATION()             	// Obligatory assigning - see E00-START
 			pulseLEDR();
 			waitDelay(25);     	//      and wait 250ms (25*10ms)
 		}
+#endif //SENDSTATUS
     }                          	// End of main cycle
 }
 

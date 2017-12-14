@@ -44,16 +44,20 @@
 #define CTRIGDIR TRISA.0
 #define CTRIG    _C1  
 
-#define SPIDEBUG
+//#define SPIDEBUG
+
 void take_picture(void);
 
 void APPLICATION()             	// Obligatory assigning - see E00-START
-{
+{	
+	pulseLEDG();
 	clearBufferRF();
 	
+	//set camera ports
 	CTRIGDIR = 0; //port direction of portc.3 (sam as _SCK) for camera trigger
 	CTRIG = 0;
 	
+		
 	#ifdef SPIDEBUG
 	enableSPI();	
 	#else //not SPIDEBUG
@@ -61,6 +65,11 @@ void APPLICATION()             	// Obligatory assigning - see E00-START
 	#endif //SPIDEBUG
 	
 	SWDTEN = 1; 				//keep wdt running
+	
+	pulseLEDG();
+	waitDelay(10);
+	setRFmode(_RX_XLP); 		// XLP RX mode - RFIC is periodacaly switched ON/OFF
+	toutRF = 3; 				// [cycle], 1 cycle is cca 600 ms
 	
     while (1)                  	// Main cycle (perpetually repeated)
     {
