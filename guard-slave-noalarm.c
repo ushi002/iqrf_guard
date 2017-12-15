@@ -62,6 +62,20 @@ void APPLICATION()             	// Obligatory assigning - see E00-START
 
 	setRFmode(_TX_XLP);         //TX XLP mode - prolonged TX preamble
 	toutRF = 3;
+	
+	//disable watchdog
+	SWDTEN = 0;
+	//power-up wait: 10sec before getting armed	
+	waitDelay(250);  //wait 2.5 sec, value of 255 is maximum
+	pulseLEDR();
+	waitDelay(250);
+	pulseLEDR();
+	waitDelay(250);
+	pulseLEDR();
+	waitDelay(250);
+	pulseLEDG();
+	//enable watchdog
+	SWDTEN = 1;
 		
     while (1)                  	// Main cycle (perpetually repeated)
     {
@@ -91,6 +105,21 @@ void APPLICATION()             	// Obligatory assigning - see E00-START
 		
 		if (motion_detected)
 		{
+			//10 seconds becore sending message to have time to turn off device
+			//disable watchdog			
+			SWDTEN = 0;
+			//message wait: 10sec before getting armed	
+			waitDelay(250);  //wait 2.5 sec, value of 255 is maximum
+			pulseLEDR();
+			waitDelay(250);
+			pulseLEDR();
+			waitDelay(250);
+			pulseLEDR();
+			waitDelay(250);
+			pulseLEDG();
+			//enable watchdog
+			SWDTEN = 1;
+			
 			motion_detected	= 0;
 			wupnum = 0; //do not send status packet
 			PIN = 0; //peer-to-peer topology, update after every RFRXpacket before every RFTXpacket
